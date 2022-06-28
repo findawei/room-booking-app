@@ -12,23 +12,35 @@ import {
   IonItem,
   IonLabel,
   IonCheckbox,
+  IonRadio,
+  IonListHeader,
+  IonRadioGroup,
+  IonCard,
+  IonCardContent,
+  IonIcon,
+  IonCardHeader,
+  IonCardSubtitle,
+  IonCardTitle,
 } from "@ionic/react";
+import { meetingRooms, sampleData } from "../data/SampleData";
 
 interface ContainerProps {}
 
 const CompanyPicker: React.FC<ContainerProps> = () => {
   const [company, setCompany] = useState("");
   const [startTime, setStartTime] = useState("");
-  const [checked, setChecked] = useState(false);
+  const [selected, setSelected] = useState("");
   const [confirmTime, setConfirmTime] = useState(false);
 
-  const checkboxList = [
-    { val: "Pepperoni", isChecked: true },
-    { val: "Sausage", isChecked: false },
-    { val: "Mushroom", isChecked: false },
-  ];
+  const filteredRooms = meetingRooms.map((room) => ({
+    room: room,
+    isBooked: sampleData.filter((booking) => booking.room === room).length
+      ? true
+      : false,
+    // company: sampleData.filter((booking) => booking.room === room).company,
+  }));
 
-  console.log({ company, startTime, confirmTime });
+  console.log({ company, startTime, selected });
 
   return (
     <IonContent>
@@ -60,33 +72,49 @@ const CompanyPicker: React.FC<ContainerProps> = () => {
               </IonButton>
             </IonCol>
           </IonRow>
-        ) : (
+        ) : selected == "" ? (
           <IonList>
-            <IonItemDivider>Default Checkbox</IonItemDivider>
-            <IonItem>
-              <IonLabel>Checked: {JSON.stringify(checked)}</IonLabel>
-              <IonCheckbox
-                checked={checked}
-                onIonChange={(e) => setChecked(e.detail.checked)}
-              />
-            </IonItem>
-
-            <IonItemDivider>Disabled Checkbox</IonItemDivider>
-            <IonItem>
-              <IonCheckbox slot="end" disabled={true} />
-            </IonItem>
-
-            <IonItemDivider>Checkbox Colors</IonItemDivider>
-
-            <IonItemDivider>Checkboxes in a List</IonItemDivider>
-
-            {checkboxList.map(({ val, isChecked }, i) => (
-              <IonItem key={i}>
-                <IonLabel>{val}</IonLabel>
-                <IonCheckbox slot="end" value={val} checked={isChecked} />
-              </IonItem>
-            ))}
+            <IonRadioGroup
+              value={selected}
+              onIonChange={(e) => setSelected(e.detail.value)}
+            >
+              <IonListHeader>
+                <IonLabel>
+                  Pick a room for your meeting at {""}
+                  {new Date(startTime).toLocaleTimeString("en", {
+                    timeStyle: "short",
+                    hour12: true,
+                  })}
+                </IonLabel>
+              </IonListHeader>
+              {filteredRooms.map(({ room, isBooked }, i) => (
+                <IonItem key={i}>
+                  <IonLabel>{room}</IonLabel>
+                  <IonRadio
+                    slot="end"
+                    value={room}
+                    // checked={isBooked}
+                    disabled={isBooked}
+                    // onIonChange={(room) => onBook(room, startTime)}
+                  />
+                </IonItem>
+              ))}
+            </IonRadioGroup>
           </IonList>
+        ) : (
+          <IonCard>
+            <IonCardHeader>
+              <IonCardTitle>
+                You booked room {selected} from {startTime} for 1 hour
+              </IonCardTitle>
+            </IonCardHeader>
+
+            <IonCardContent>
+              Keep close to Nature's heart... and break clear away, once in
+              awhile, and climb a mountain or spend a week in the woods. Wash
+              your spirit clean.
+            </IonCardContent>
+          </IonCard>
         )}
       </IonGrid>
     </IonContent>
